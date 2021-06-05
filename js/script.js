@@ -46,58 +46,63 @@ document.addEventListener('DOMContentLoaded', () => {
 		addForm = document.querySelector('form.add'),
 		favorite = addForm.querySelector('[type="checkbox"]'),
 		img = document.querySelectorAll('.promo__adv img'),
-		movieList = document.querySelector('.promo__interactive-list'),
-		deleteBtn = document.querySelectorAll('.delete');
+		movieList = document.querySelector('.promo__interactive-list');
 
 	const remAdv = (arr) => {
 		arr.forEach(item => {
 			item.remove();
 		});
+	},
+	makeChanges = () => {
+		document.querySelector('.promo__genre').innerText = 'драма';
+		document.querySelector('.promo__bg').style.backgroundImage = 'url("img/bg.jpg")';
+	},
+	sortArr = (arr) => {
+		arr.sort();
 	};
 	
-	function addListElem() {
-		movieList.innerHTML = '';
-		movieDB.movies.sort();
-		movieDB.movies.forEach((item, i) => {
-		movieList.innerHTML += `
+	function addListElem(arr, elem) {
+		elem.innerHTML = '';
+		sortArr(arr);
+		arr.forEach((item, i) => {
+		elem.innerHTML += `
 		<li class="promo__interactive-item">${i + 1} ${item}
 			<div class="delete"></div>
 		</li>
 		`;
 	});
-	}
-	remAdv(img);
-	addListElem();
+		document.querySelectorAll('.delete').forEach((btn, i) => {
+			btn.addEventListener('click',() => {
+				btn.parentElement.remove();
+				movieDB.movies.splice(i, 1);
 
-	document.querySelector('.promo__genre').innerText = 'драма';
-	document.querySelector('.promo__bg').style.backgroundImage = 'url("img/bg.jpg")';
-	
+				addListElem(arr, elem);
+			});
+		});
+	}
+
+	// sortArr(movieDB.movies);
+	remAdv(img);
+	addListElem(movieDB.movies, movieList);
+	makeChanges();
+
 	addForm.addEventListener('submit', (event) => {
 		event.preventDefault();
-		if (input.value.length >= 21) {
-			let str1 = input.value.substr(0, 21);
-			str1 += '...';
-			movieDB.movies.push(str1.toUpperCase());
-			addListElem();
-			event.target.reset();
-		} else if (input.value.length < 21 && input.value.length > 0) {
-			movieDB.movies.push(input.value.toUpperCase());
-			addListElem();
-			event.target.reset();
-		} else if (input.value == "") {
+		let newFilm = input.value;
+		if (newFilm.length >= 21) {
+			newFilm = `${newFilm.substr(0, 21)}...`;
+			movieDB.movies.push(newFilm.toUpperCase());
+		} else if (newFilm.length < 21 && newFilm.length > 0) {
+			movieDB.movies.push(newFilm.toUpperCase());
+		} else if (newFilm == "") {
 			console.log('Введите название фильма');
 		} else {
 			console.log('error');
 		}
-		if (favorite.checked) {
-			console.log('Добавляем любимый фильм');
+		if (favorite.checked && newFilm.length > 1) {
+			console.log(`Добавляем любимый фильм: ${newFilm}`);
 		}
+		addListElem(movieDB.movies, movieList);
+		event.target.reset();
 	});
-
-	// deleteBtn.forEach(item => {
-	// 	console.log(item);
-	// 	item.addEventListener('mouseup',asd => {
-	// 		console.log('addListElem');
-	// 	});
-	// });
 });
